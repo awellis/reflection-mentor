@@ -1,10 +1,5 @@
 """
-Basic single-agent chat example using Task along with ChainlitTaskCallbacks.
-
-After setting up the virtual env as in README,
-and you have your OpenAI API Key in the .env file, run like this:
-
-chainlit run examples/chainlit/chat-with-task.py
+Basic multi-agent chat Task along with ChainlitTaskCallbacks.
 """
 
 from datetime import datetime
@@ -260,4 +255,3 @@ async def on_message(message: cl.Message):
     MyChainlitTaskCallbacks(art_historian_task, message, config=callback_config)
 
     await assistant_task.run_async(message.content)
-    # assistant_task.logger().log("Task finished")
