@@ -12,7 +12,7 @@ import langroid as lr
 app = typer.Typer()
 
 lr.utils.logging.setup_colored_logging()
-
+    
 NO_ANSWER = lr.utils.constants.NO_ANSWER
 
 def chat() -> None:

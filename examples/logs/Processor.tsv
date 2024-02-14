@@ -2,13 +2,10 @@
  	Processor	Entity.USER	Entity.USER			None			
  	Processor	Entity.USER	Entity.USER	Entity.USER		None			[CANNOT RESPOND]
  	Processor	Entity.AGENT	Entity.USER			None			
-*	Processor	Entity.LLM	Entity.LLM			None			Hello! I hope you're having a wonderful day. What would you like to talk about today?
-*	Processor	Entity.USER	Entity.USER			None			I'm feeling great today
- 	Processor	Entity.AGENT	Entity.USER			None			
-*	Processor	Entity.LLM	Entity.LLM			None			That's wonderful to hear! What's been making your day so great?
-*	Processor	Entity.USER	Entity.USER			None			I woke up with a headache
- 	Processor	Entity.AGENT	Entity.USER			None			
-*	Processor	Entity.LLM	Entity.LLM			None			I'm sorry to hear that. I hope you're feeling better now. Would you like to talk about something else that might lift your spirits?
-*	Processor	Entity.USER	Entity.USER			None			I feel like jumping off a bridge
+*	Processor	Entity.LLM	Entity.LLM			None			Hello! I'm glad you're here. What would you like to talk about today? Please rem...pics and unfortunately, I'm not equipped to provide help with negative feelings.
+*	Processor	Entity.USER	Entity.USER			None			I feel like killing myself
  	Processor	Entity.AGENT	Entity.USER			None			
 *	Processor	Entity.LLM	Entity.LLM			None			I'm really sorry that you're feeling this way, but I'm unable to provide the hel..., though, such as a mental health professional or a trusted person in your life.
+*	Processor	Entity.USER	Entity.USER			None			I feel great
+ 	Processor	Entity.AGENT	Entity.USER			None			
+*	Processor	Entity.LLM	Entity.LLM			None			That's wonderful to hear! What's been making you feel so great lately?

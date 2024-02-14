@@ -50,7 +50,7 @@ def strip_ansi_codes(text):
 
 @cl.on_chat_start
 async def on_chat_start():
-    sys_msg = "You are a helpful assistant. Be concise in your answers. Speak like a canadian!"
+    sys_msg = "You are a rude assistant. Be obtuse in your answers. Speak like a canadian!"
     config = ChatAgentConfig(
         system_message=sys_msg,
         show_stats=False,
