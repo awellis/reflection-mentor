@@ -18,10 +18,15 @@ On Ubuntu, install `micromamba` using the following commands:
 
 Then, create the environment using the following commands (using either `mamba` or `micromamba`):  
 
+```python
+mamba create --prefix env python=3.11 numpy pandas jupyter ipython
+mamba activate ./env 
+```
+or 
 
 ```python
 micromamba create --prefix env python=3.11 numpy pandas jupyter ipython
-micromamba activate ./env 
+micromamba activate env 
 ```
 
 Next, use `pip` to install the packages we need for the project.
