@@ -1,3 +1,2 @@
-langroid
-outlines
+langroid @ git+https://github.com/langroid/langroid@be5da1378f48d2e9ae93d481ecb73cf0d853c9e1
 chainlit
