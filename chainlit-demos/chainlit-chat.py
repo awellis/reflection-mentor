@@ -19,7 +19,25 @@ async def on_chat_start():
     ) 
     agent = ChatAgent(config)
     cl.user_session.set("agent", agent) 
+    
+    res = await cl.AskActionMessage(
+    content="Pick an action!",
+    actions=[
+        cl.Action(name="continue", value="continue", label="✅ Continue"),
+        cl.Action(name="cancel", value="cancel", label="❌ Cancel"),
+    ],
+    ).send()
 
+    if res and res.get("value") == "continue":
+        await cl.Message(
+            content="Continue!",
+        ).send()
+
+    res = await cl.AskUserMessage(content="What is your name?", timeout=30).send()
+    if res:
+        await Message(
+            content=f"Your name is: {res['content']}.\nChainlit installation is working!\nYou can now start building your own chainlit apps!",
+        ).send()
 
 @cl.on_message
 async def on_message(message: cl.Message):
@@ -29,3 +47,8 @@ async def on_message(message: cl.Message):
     response = await agent.llm_response_async(message.content)
     msg.content = response.content
     await msg.send()
+
+
+@cl.on_chat_end
+def end():
+    print("goodbye", cl.user_session.get("id"))
