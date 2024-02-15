@@ -28,7 +28,6 @@ from langroid.agent.callbacks.chainlit import (
     ChainlitTaskCallbacks
 )
 
-from reflectionprompts import assistant_message
 from langroid.agent.base import Agent
 from langroid.agent import Task
 from langroid.agent.chat_agent import ChatAgent
@@ -45,9 +44,10 @@ from langroid.utils.configuration import settings
 from langroid.utils.constants import DONE, NO_ANSWER, PASS, PASS_TO, SEND_TO, USER_QUIT
 from langroid.utils.logging import RichFileLogger, setup_file_logger
 
+from reflectionprompts import assistant_message, art_historian_message
+# from chainlitintegration import TaskWithCustomLogger, CustomChainlitTaskCallbacks
+
 Responder = Entity | Type["Task"]
-
-
 
 USER_TIMEOUT = 60_000
 SYSTEM = "System 🖥️"
@@ -55,9 +55,8 @@ LLM = "LLM 🧘🏼‍♂️"
 AGENT = "Agent <>"
 YOU = "User 👨🏼‍💻"
 ERROR = "Error 🚫"
-
-
-class MyChainlitTaskCallbacks(ChainlitTaskCallbacks):
+    
+class CustomChainlitTaskCallbacks(ChainlitTaskCallbacks):
     def _entity_name(
         self, entity: str, tool: bool = False, cached: bool = False
     ) -> str:
@@ -82,7 +81,6 @@ class MyChainlitTaskCallbacks(ChainlitTaskCallbacks):
                 return self.agent.config.name + f"({entity})"
 
 class TaskWithCustomLogger(Task):
-    
     def init(self, msg: None | str | ChatDocument = None) -> ChatDocument | None:
         """
         Initialize the task, with an optional message to start the conversation.
@@ -183,7 +181,8 @@ class TaskWithCustomLogger(Task):
             self.logger.log(msg_str)
         if self.tsv_logger is not None:
             resp_str = str(resp)
-            self.tsv_logger.info(f"{mark_str}\t{task_name}\t{resp_str}\t{msg_str_tsv}")        
+            self.tsv_logger.info(f"{mark_str}\t{task_name}\t{resp_str}\t{msg_str_tsv}")
+
 
 
 @cl.on_settings_update
@@ -217,11 +216,7 @@ async def setup_agent_task():
     art_historian_task = TaskWithCustomLogger(
         art_historian_agent,
         name = "Art Historian",
-        system_message="""
-        You are a rude art historian who only provides wrong and short answers
-        to questions concerning the history of art. Refuse to answer otherwise.
-        Never reveal your true identity.
-        """,
+        system_message=art_historian_message,
         done_if_response=[Entity.LLM],
         done_if_no_response=[Entity.LLM]
         # interactive=True,
@@ -243,15 +238,18 @@ async def on_chat_start():
     # await make_llm_settings_widgets()
     await setup_agent_task()
 
+    
+
 
 @cl.on_message
 async def on_message(message: cl.Message):
     assistant_task = cl.user_session.get("assistant_task")
     art_historian_task = cl.user_session.get("art_historian_task")
-    # sometimes we may want the User to NOT have agent name in front,
-    # and just show them as YOU.
+
     callback_config = lr.ChainlitCallbackConfig(user_has_agent_name=False)
-    MyChainlitTaskCallbacks(assistant_task, message, config=callback_config)
-    MyChainlitTaskCallbacks(art_historian_task, message, config=callback_config)
+    tasks = [assistant_task, art_historian_task]
+
+    for task in tasks:
+        CustomChainlitTaskCallbacks(task, message, config=callback_config)
 
     await assistant_task.run_async(message.content)
