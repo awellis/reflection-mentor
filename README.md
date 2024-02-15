@@ -2,41 +2,36 @@
 
 ## Setup python environment
 
-We're using a combination of miniconda and pip to manage the python environment.
-First, install [miniconda](https://docs.conda.io/projects/miniconda/en/latest/)
-as per the instructions on the website. 
-
+We're using a combination of miniforge and pip to manage the python environment.
 `mamba` is a faster version of `conda` that we'll use to create the environment.
 
-
-On Ubuntu, install `micromamba` using the following commands:
+On MacOS/Linux, install `miniforge` using the following commands:
 
 
 ```bash
-"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
 ```
 
-Then, create the environment using the following commands (using either `mamba` or `micromamba`):  
-
-```python
-mamba create --prefix env python=3.11 numpy pandas jupyter ipython
+Then, create an environment using `mamba` and activate it. 
+ 
+```shell
+mamba create --prefix env python=3.11
 mamba activate ./env 
-```
-or 
-
-```python
-micromamba create --prefix env python=3.11 numpy pandas jupyter ipython
-micromamba activate env 
 ```
 
 Next, use `pip` to install the packages we need for the project.
 
-```python
+```shell
 pip install -r requirements.txt
 ```
 
 ## Run chainlit app
 
-```python
+```shell
+cd reflection-mentor
+```
+
+```shell
 chainlit run app.py -h
 ```
