@@ -35,3 +35,8 @@ Next, use `pip` to install the packages we need for the project.
 pip install -r requirements.txt
 ```
 
+## Run chainlit app
+
+```python
+chainlit run app.py -h
+```
