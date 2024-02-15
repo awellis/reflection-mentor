@@ -33,11 +33,26 @@ async def on_chat_start():
             content="Continue!",
         ).send()
 
-    res = await cl.AskUserMessage(content="What is your name?", timeout=30).send()
-    if res:
-        await Message(
-            content=f"Your name is: {res['content']}.\nChainlit installation is working!\nYou can now start building your own chainlit apps!",
-        ).send()
+    res2 = await cl.AskUserMessage(content="What is your name?", timeout=30).send()
+    if res2:
+        await cl.Message(
+            content=f"Your name is: {res2['content']}.\nChainlit installation is working!\nYou can now start building your own chainlit apps!",
+        ).send()          
+
+    settings = await cl.ChatSettings(
+        [
+            Switch(id="Streaming", label="OpenAI - Stream Tokens", initial=True),
+        ]
+    ).send()
+    value = settings["Streaming"]
+
+    fig = go.Figure(
+        data=[go.Bar(y=[2, 1, 3])],
+        layout_title_text="An example figure",
+    )
+    elements = [cl.Plotly(name="chart", figure=fig, display="inline")]
+
+    await cl.Message(content="This message has a chart", elements=elements).send()
 
 @cl.on_message
 async def on_message(message: cl.Message):
@@ -47,6 +62,9 @@ async def on_message(message: cl.Message):
     response = await agent.llm_response_async(message.content)
     msg.content = response.content
     await msg.send()
+
+    content = message.content
+    print("message content:", content)
 
 
 @cl.on_chat_end
