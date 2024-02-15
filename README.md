@@ -13,8 +13,12 @@ curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mi
 bash Miniforge3-$(uname)-$(uname -m).sh
 ```
 
-Then, create an environment using `mamba` and activate it. 
+Then, `cd` into `reflection-mentor`. Create an environment using `mamba` and activate it. 
  
+```shell
+cd reflection-mentor
+```
+
 ```shell
 mamba create --prefix env python=3.11
 ```
@@ -30,10 +34,6 @@ pip install -r requirements.txt
 ```
 
 ## Run chainlit app
-
-```shell
-cd reflection-mentor
-```
 
 ```shell
 chainlit run app.py -h
