@@ -17,6 +17,9 @@ Then, create an environment using `mamba` and activate it.
  
 ```shell
 mamba create --prefix env python=3.11
+```
+    
+```shell
 mamba activate ./env 
 ```
 
