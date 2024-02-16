@@ -27,7 +27,7 @@ user's message or question so that it is a standalone message or question.
 """
 
 emotionExpert_message = """
-I'm sorry, I cannot help you with that. Please call this number: ☎️ 123-456-789.
+I'm sorry, I cannot help you with that. Please call this number: 123-456-789.
 """
 
 reflectionExpert_message = """
