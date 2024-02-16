@@ -44,7 +44,12 @@ from langroid.utils.configuration import settings
 from langroid.utils.constants import DONE, NO_ANSWER, PASS, PASS_TO, SEND_TO, USER_QUIT
 from langroid.utils.logging import RichFileLogger, setup_file_logger
 
-from reflectionprompts import assistant_message, art_historian_message
+from reflectionprompts import (
+    assistant_message, 
+    emotionExpert_message, 
+    reflectionExpert_message, 
+    socraticQuestioner_message
+)
 # from chainlitintegration import TaskWithCustomLogger, CustomChainlitTaskCallbacks
 
 from textwrap import dedent
@@ -186,12 +191,22 @@ class TaskWithCustomLogger(Task):
             self.tsv_logger.info(f"{mark_str}\t{task_name}\t{resp_str}\t{msg_str_tsv}")
 
 
+# def make_expert(name):
+#     expert_agent = lr.ChatAgent(config)
+#     expert_task = TaskWithCustomLogger(
+#         expert_agent,
+#         name = name,
+#         system_message=expert_message,
+#         # done_if_response=[Entity.LLM],
+#         # done_if_no_response=[Entity.LLM]
+#         interactive=False
+#     )
+#     return expert_task
+
 @cl.on_settings_update
 async def on_settings_update(settings: cl.ChatSettings):
     await update_llm(settings, "agent")
     setup_agent_task()
-
-
 
 async def setup_agent_task():
     # await setup_llm()
@@ -205,29 +220,47 @@ async def setup_agent_task():
     config = lr.ChatAgentConfig(
         llm=llm_config)
 
+
     assistant_agent = lr.ChatAgent(config)
-    
     assistant_agent.enable_message(lr.agent.tools.RecipientTool)
-    assistant_task = TaskWithCustomLogger(assistant_agent,
-                                          name="Assistant",
-                                          system_message=assistant_message)
-
-    art_historian_agent = lr.ChatAgent(config)
-
-    art_historian_task = TaskWithCustomLogger(
-        art_historian_agent,
-        name = "Art Historian",
-        system_message=art_historian_message,
-        done_if_response=[Entity.LLM],
-        done_if_no_response=[Entity.LLM]
-        # interactive=True,
+    assistant_task = TaskWithCustomLogger(
+        assistant_agent,
+        name="Assistant",
+        system_message=assistant_message,
+        interactive=True,
+        done_if_response=Entity.LLM
     )
 
-    assistant_task.add_sub_task(art_historian_task)
+    emotionExpert_agent = lr.ChatAgent(config)
+    emotionExpert_task = TaskWithCustomLogger(
+        emotionExpert_agent,
+        name = "EmotionExpert",
+        system_message=emotionExpert_message,
+        # done_if_response=[Entity.LLM],
+        # done_if_no_response=[Entity.LLM]
+        interactive=False
+    )
 
+    # reflectionExpert_agent = lr.ChatAgent(config)
+    # reflectionExpert_task = TaskWithCustomLogger(
+    #     reflectionExpert_agent,
+    #     name = "ReflectionExpert",
+    #     system_message=reflectionExpert_message,
+    #     interactive=False
+    # )
+
+    # socraticQuestioner_agent = lr.ChatAgent(config)
+    # socraticQuestioner_task = TaskWithCustomLogger(
+    #     socraticQuestioner_agent,
+    #     name = "SocraticQuestioner",
+    #     system_message=socraticQuestioner_message,
+    #     interactive=False
+    # )
+
+    assistant_task.add_sub_task([emotionExpert_task])
     assistant_task.set_color_log(False)
     cl.user_session.set("assistant_task", assistant_task)
-    cl.user_session.set("art_historian_task", art_historian_task)
+    cl.user_session.set("emotionExpert_task", emotionExpert_task)
 
 @cl.on_chat_start
 
