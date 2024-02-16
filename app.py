@@ -47,6 +47,8 @@ from langroid.utils.logging import RichFileLogger, setup_file_logger
 from reflectionprompts import assistant_message, art_historian_message
 # from chainlitintegration import TaskWithCustomLogger, CustomChainlitTaskCallbacks
 
+from textwrap import dedent
+
 Responder = Entity | Type["Task"]
 
 USER_TIMEOUT = 60_000
@@ -55,7 +57,7 @@ LLM = "LLM 🧘🏼‍♂️"
 AGENT = "Agent <>"
 YOU = "User 👨🏼‍💻"
 ERROR = "Error 🚫"
-    
+
 class CustomChainlitTaskCallbacks(ChainlitTaskCallbacks):
     def _entity_name(
         self, entity: str, tool: bool = False, cached: bool = False
@@ -184,7 +186,6 @@ class TaskWithCustomLogger(Task):
             self.tsv_logger.info(f"{mark_str}\t{task_name}\t{resp_str}\t{msg_str_tsv}")
 
 
-
 @cl.on_settings_update
 async def on_settings_update(settings: cl.ChatSettings):
     await update_llm(settings, "agent")
@@ -232,9 +233,20 @@ async def setup_agent_task():
 
 async def on_chat_start():
     await add_instructions(
-        title="Reflection Mentor",
-        content="🚧 Demo version",
-    )
+        title="Two-Agent Reflection Chat",
+        content=dedent("""
+            **Teacher Agent** delegates to **Student Agent.**
+            - **Teacher** Agent asks a numerical question to **Student** Agent
+            - user (you) hits `c` to continue on to the **Student**
+            - **Student** Agent answers the question
+            - user (you) hits `c` to continue on to the **Teacher**
+            - **Teacher** Agent gives feedback        
+            - and so on.
+            
+            Note how all steps of the (student) sub-task are nested one level below 
+            the main (teacher) task.
+            """))
+
     # await make_llm_settings_widgets()
     await setup_agent_task()
 
