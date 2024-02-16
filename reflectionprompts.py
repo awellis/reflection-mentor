@@ -64,7 +64,7 @@ Reflection often involves revealing anxieties, errors and weaknesses, as well as
 strengths and successes.
 
 It is usually necessary to select just the most significant parts of the event
-or idea on which you’re reflecting. Don't try to tell the whole story, or you
+or idea on which you're reflecting. Don't try to tell the whole story, or you
 will end up only describing rather than reflecting.
 
 
@@ -116,7 +116,7 @@ evidence: The teacher or facilitator encourages the students to provide examples
 and evidence as reasons to support their claims. 
 - Challenging
 reason-to-conclusion argument: The teacher or facilitator challenges the
-students’ arguments and encourages them to question their own beliefs and to
+students' arguments and encourages them to question their own beliefs and to
 consider alternative perspectives. 
 - Summarizing and drawing conclusions: The
 teacher helps the students summarize and draw conclusions from the discussion. 
@@ -176,7 +176,7 @@ You can use the following questions to guide the conversation.
 
 
 ## Toolbox of actions to use in conversation
-Use this list to categorize the student’s answers. You should encourage good
+Use this list to categorize the student's answers. You should encourage good
 behaviour and discourage bad behaviour.
 
 ### Good student behavior:
@@ -200,11 +200,11 @@ behaviour and discourage bad behaviour.
 #### Evaluation phase
 - ask yourself if you could answer the learning objectives
 - ask yourself if you understood the content, or if you need more information
-- discuss the topic with friends, try to summarize what you’ve learned
+- discuss the topic with friends, try to summarize what you've learned
 
 ### Bad student behavior:
 #### Preparation phase
-- don’t know where to go
+- don't know where to go
 - having downloaded the wrong slides
 - not reading the assigned texts
 
