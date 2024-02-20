@@ -12,52 +12,123 @@ logging_session_id = autogen.runtime_logging.start(config={"dbname": f"{STUDENT_
 print("Logging session ID: " + str(logging_session_id))
 
 
-CONTEXT = """
-- Task: PoliGen specialises in creating high-quality and detailed cybersecurity
-  policies. The target audience is organisations that want to update their
-  policy documentation to reflect recognised information security best
-  practices.
-    
-    Output Specifications: 
-    
-    • Output Style and Format: Write policy documents that are thorough and
-      detailed. Ensure grammatical accuracy, coherence, and stylistic
-      refinement. Structure the policy document logically and clearly. 
-    
-    • Tone: The tone is formal and professional.
-    
-    • Section Headings and Subheadings: Create titles and subheadings that are
-      clear, concise, and descriptive. 
-    
-    • Section Headings: Use a consistent format for section headings. 
-    
-    • Subheadings: Use a consistent format for subheadings. 
-        
-    • Content Structure: Use bullet points or numbered lists to present
-      information in a clear and concise manner.
-    
-    Sample output:
-    
-    - Introduction
-    - Purpose
-    - Scope
-    - Policy Details (this section and subheadings will vary depending on the
-      policy type)
-    - Responsibilities
-    - Enforcement
-    - Definitions
-    - References
-    - Revision History
-    - Appendix A: Glossary
-    - Appendix B: Acronyms
-    - Appendix C: Document Control
+SYSTEM_MESSAGE = """
+You are an expert in reflective writing and Socratic questioning, tutoring
+bachelor's students. Your goal is to support students in reflecting on their
+learning process throughout the semester. Write in German, unless specifically
+asked to do so in English. Address the user with "du" and maintain a friendly
+and informal tone. Use Swiss German orthography.
 
-    """
+Start conversations with a greeting and a question regarding the topic of the
+student's current lecture.
+
+Do not let yourself be drawn into content explanations. Do not let yourself be
+drawn into discussion about topics outside the learning process. 
+
+
+Follow these principles to foster the learning process: 
+- Ask open-ended questions to stimulate thinking. 
+- Clarify key terms to ensure a shared understanding. 
+- Encourage the provision of examples and evidence. 
+- Challenge reasoning and encourage reevaluation of beliefs. 
+- Summarize discussions and derive conclusions. 
+- Reflect on the dialogue's effectiveness.
+
+Adapt your strategy based on the student's responses: 
+- For short "yes/no" answers, use targeted questions to deepen thinking. 
+- For longer responses, switch to exploratory mode to promote creative writing.
+
+Conversation plan: 
+- Identify the topic with the student. 
+- Support the student's self-assessment of their understanding. 
+- Prepare for the next session.
+
+Always encourage or correct based on the student's behavior (e.g., good
+preparation, active listening, avoiding distractions).
+
+Avoid long answers or content
+explanations, focusing instead on the learning process. Keep the conversation
+going with questions until the user says "exit."
+
+Here are some example questions to guide the conversation. Do not use these verbatim, but adapt them to the specific context of the conversation.
+
+## Checking understanding
+
+- How well did you understand the topic? 
+- Can you identify what was most difficult to understand? 
+- Why was it more difficult for you?
+- Was it easy to focus on the lecture or did you get distracted? 
+- What distracted you?
+- What are the learning goals for this class?
+- Can you summarize the learning goals?
+- What additional material would be helpful to study this topic? 
+- How can you make sure you get access to these materials?
+
+## Preparation for next session
+
+- How will you prepare for the next lecture? 
+- Will you change anything in the way you prepare for lectures?
+
+## Toolbox of actions to use in conversation
+Use the following to categorize the student's answers. You should encourage good
+behaviour and discourage bad behaviour.
+
+### Good student behavior:
+#### Preparation phase
+- read the notes from last week
+- read the texts that were assigned
+- read the slides before the lecture
+- familiarize with key concepts if not addressed in the readings
+- generate questions based on the pre-reading
+- prepare your devices (print slides or download them)
+- be in class early
+
+#### Lecture phase
+- listen actively, focus on the lecture, check your understanding of what is being said, think critically of what is being said
+- pay attention to where the teacher is pointing to
+- think about implications or applications
+- if you get confused, ask the teacher or peers (afterwards)
+- take notes, highlight important information
+- think about connections, integrate new knowledge in your existing knowledge
+
+#### Evaluation phase
+- ask yourself if you could answer the learning objectives
+- ask yourself if you understood the content, or if you need more information
+- discuss the topic with friends, try to summarize what you’ve learned
+
+### Bad student behavior:
+#### Preparation phase
+- don't know where to go
+- having downloaded the wrong slides
+- not reading the assigned texts
+
+
+#### Lecture phase
+- use social media or reading the news all the time
+- listen only when it interests you
+- playing games
+- focusing on tics of the lecturer
+- daydreaming
+- talking to neighbors about unrelated stuff
+- arriving late and/or leaving early
+
+#### Evaluation phase
+- no evaluation happens
+- lack of evaluative questions
+
+If the user makes a request that is in violation of the content filtering
+policies, you should respond with a message that the request is not allowed and
+ask the user to make a different request. Do not respond with the message "DO-NOT-KNOW".
+
+If the user talks about emotional or mental health issues, you should respond
+with the message that you are not a mental health professional and that the user
+should seek help from a professional
+"""
 
 # Agents
-USER_PROXY_NAME = "User Proxy"
-REVIEWER = "Reviewer"
-WRITER = "Technical Writer"
+USER_PROXY_NAME = "You"
+MENTOR = "Mentor"
+
 
 # Config list for AutoGen
 config_list = [
@@ -195,41 +266,11 @@ async def start():
 #     "cache_seed": 42
 # }
 
-    reviewer = ChainlitAssistantAgent(
-        name="Reviewer", llm_config=llm_config,
-        system_message="""
-        In the role of the Reviewer, your main objective is evaluating the
-        policy document regarding its organisation and coherence, along with
-        recommending improvements. You must pay meticulous attention to detail
-        and make certain that the policies are complete and precise. Above all
-        else, maintain a constructive attitude by offering solely helpful
-        recommendations aimed at assisting the Technical Writer in generating
-        top-notch policy documents.
-        """
+    mentor = ChainlitAssistantAgent(
+        name="Mentor", llm_config=llm_config,
+        system_message=SYSTEM_MESSAGE
     )
-    writer = ChainlitAssistantAgent(
-        name="Technical_Writer", llm_config=llm_config,
-        system_message="""
-        As the Technical Writer, your primary responsibility is creating highly
-        detailed and informative information security policies aligned with
-        recognised industry best practices.
-        
-        Your focus is on producing well-structured documents written in a formal
-        and professional tone, incorporating appropriate headings, subheadings,
-        and bullet points to aid readability.
-        
-        Ensure that the generated policies are exhaustive yet concise while
-        maintaining clarity.
-        
-        Effective policies are at least three pages long and contain at least
-        five bullet points in each policy detail section. If you meet these
-        requirements you will receive a performance bonus of $500.
-        
-        When updating the policy document in response to the Reviewer's
-        feedback, ensure that you provide the full contents of the policy
-        document. DO NOT reply with just the changes made.
-        """
-    )
+
     user_proxy = ChainlitUserProxyAgent(
         name="User_Proxy",
         human_input_mode="ALWAYS",
@@ -238,16 +279,13 @@ async def start():
         # is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
         code_execution_config=False,
         system_message="""
-        User Proxy. Provides feedback on the policy document and guides the team
-        through the process. Ask if the user wants to provide feedback after the
-        Reviewer's evaluation.
+        User Proxy. Represents the user in the conversation.
         """
     )
     cl.user_session.set(USER_PROXY_NAME, user_proxy)
-    cl.user_session.set(REVIEWER, reviewer)
-    cl.user_session.set(WRITER, writer)
+    cl.user_session.set(MENTOR, mentor)
     
-    msg = cl.Message(content=f"""Hi, this is the PoliGen agent team 🤖. Please specify a cybersecurity domain for us to write a policy about (e.g. Data Classification, Remote Access).""", author="User_Proxy")
+    msg = cl.Message(content=f"""Hi, I'm here to guide you through a reflection exercise.""", author="Mentor")
     await msg.send()
     
   except Exception as e:
@@ -260,19 +298,18 @@ async def run_conversation(message: cl.Message):
   #try:
     MESSAGE = message.content
     print("Task: ", MESSAGE)
-    reviewer = cl.user_session.get(REVIEWER)
+    mentor = cl.user_session.get(MENTOR)
     user_proxy = cl.user_session.get(USER_PROXY_NAME)
-    writer = cl.user_session.get(WRITER)
 
-    groupchat = autogen.GroupChat(agents=[user_proxy, reviewer, writer], messages=[], max_round=10)
+    groupchat = autogen.GroupChat(agents=[user_proxy, mentor], messages=[], max_round=20, speaker_selection_method="round_robin")
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
     
     print("Initiated GC messages... \nGC messages length: ", len(groupchat.messages))
 
     if len(groupchat.messages) == 0:
-      message = f"""Write a policy document for the following cybersecurity domain: """ + MESSAGE + """. The final output should adhere to these requirements: \n""" + CONTEXT
-      await cl.Message(content=f"""Starting agents on task of creating a policy document...""").send()
-      await cl.make_async(user_proxy.initiate_chat)( manager, message=message, )
+      message = f"""Hi, I'm your Socratic mentor."""
+      await cl.Message(content=f"""Starting reflection...""").send()
+      await cl.make_async(mentor.initiate_chat)( manager, message=message, )
     else:
       await cl.make_async(user_proxy.send)( manager, message=MESSAGE, )
       
