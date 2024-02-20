@@ -54,6 +54,9 @@ from reflectionprompts import (
 
 from textwrap import dedent
 
+settings.debug = True
+
+
 Responder = Entity | Type["Task"]
 
 USER_TIMEOUT = 60_000
@@ -208,6 +211,8 @@ async def on_settings_update(settings: cl.ChatSettings):
     await update_llm(settings, "agent")
     setup_agent_task()
 
+
+
 async def setup_agent_task():
     # await setup_llm()
     # llm_config = cl.user_session.get("llm_config")
@@ -228,7 +233,8 @@ async def setup_agent_task():
         name="Assistant",
         system_message=assistant_message,
         interactive=True,
-        done_if_response=Entity.LLM
+        done_if_response=[Entity.LLM],
+        done_if_no_response=[Entity.LLM]
     )
 
     emotionExpert_agent = lr.ChatAgent(config)
@@ -238,32 +244,32 @@ async def setup_agent_task():
         system_message=emotionExpert_message,
         # done_if_response=[Entity.LLM],
         # done_if_no_response=[Entity.LLM]
+        # interactive=False
+    )
+
+    reflectionExpert_agent = lr.ChatAgent(config)
+    reflectionExpert_task = TaskWithCustomLogger(
+        reflectionExpert_agent,
+        name = "ReflectionExpert",
+        system_message=reflectionExpert_message,
         interactive=False
     )
 
-    # reflectionExpert_agent = lr.ChatAgent(config)
-    # reflectionExpert_task = TaskWithCustomLogger(
-    #     reflectionExpert_agent,
-    #     name = "ReflectionExpert",
-    #     system_message=reflectionExpert_message,
-    #     interactive=False
-    # )
-
-    # socraticQuestioner_agent = lr.ChatAgent(config)
-    # socraticQuestioner_task = TaskWithCustomLogger(
-    #     socraticQuestioner_agent,
-    #     name = "SocraticQuestioner",
-    #     system_message=socraticQuestioner_message,
-    #     interactive=False
-    # )
+    socraticQuestioner_agent = lr.ChatAgent(config)
+    socraticQuestioner_task = TaskWithCustomLogger(
+        socraticQuestioner_agent,
+        name = "SocraticQuestioner",
+        system_message=socraticQuestioner_message,
+        interactive=False
+    )
 
     assistant_task.add_sub_task([emotionExpert_task])
     assistant_task.set_color_log(False)
+
     cl.user_session.set("assistant_task", assistant_task)
     cl.user_session.set("emotionExpert_task", emotionExpert_task)
 
 @cl.on_chat_start
-
 async def on_chat_start():
     await add_instructions(
         title="Two-Agent Reflection Chat",
@@ -280,21 +286,22 @@ async def on_chat_start():
             the main (teacher) task.
             """))
 
-    # await make_llm_settings_widgets()
     await setup_agent_task()
 
     
-
-
 @cl.on_message
 async def on_message(message: cl.Message):
     assistant_task = cl.user_session.get("assistant_task")
-    art_historian_task = cl.user_session.get("art_historian_task")
+    emotionExpert_task = cl.user_session.get("emotionExpert_task")
+    reflectionExpert_task = cl.user_session.get("reflectionExpert_task")
+    socraticQuestioner_task = cl.user_session.get("socraticQuestioner_task")
 
     callback_config = lr.ChainlitCallbackConfig(user_has_agent_name=False)
-    tasks = [assistant_task, art_historian_task]
-
+    
+    tasks = [assistant_task, emotionExpert_task, reflectionExpert_task, socraticQuestioner_task]
     for task in tasks:
         CustomChainlitTaskCallbacks(task, message, config=callback_config)
 
+    # if assistant_task:
     await assistant_task.run_async(message.content)
+    
