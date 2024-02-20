@@ -310,7 +310,6 @@ async def on_chat_start():
         llm=llm_config)
 
     mentor_agent = lr.ChatAgent(config)
-    # mentor_agent.enable_message(lr.agent.tools.RecipientTool)
     mentor_task = TaskWithCustomLogger(
         mentor_agent,
         name="Mentor",
