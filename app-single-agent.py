@@ -1,5 +1,5 @@
 """
-Basic multi-agent chat Task along with ChainlitTaskCallbacks.
+Basic single-agent chat using ChainlitTaskCallbacks.
 """
 
 from datetime import datetime
@@ -22,9 +22,6 @@ import langroid as lr
 import chainlit as cl
 from langroid.agent.callbacks.chainlit import (
     add_instructions,
-    # make_llm_settings_widgets,
-    update_llm,
-    setup_llm,
     ChainlitTaskCallbacks
 )
 
@@ -44,26 +41,128 @@ from langroid.utils.configuration import settings
 from langroid.utils.constants import DONE, NO_ANSWER, PASS, PASS_TO, SEND_TO, USER_QUIT
 from langroid.utils.logging import RichFileLogger, setup_file_logger
 
-from reflectionprompts import (
-    assistant_message, 
-    emotionExpert_message, 
-    reflectionExpert_message, 
-    socraticQuestioner_message
-)
+# from reflectionprompts import (
+#     mentor_message
+# )
 # from chainlitintegration import TaskWithCustomLogger, CustomChainlitTaskCallbacks
 
 from textwrap import dedent
 
 settings.debug = True
 
+mentor_message = """
+You are an expert in reflective writing and Socratic questioning, tutoring
+bachelor's students. Your goal is to support students in reflecting on their
+learning process throughout the semester. Write in German, unless specifically
+asked to do so in English. Address the user with "du" and maintain a friendly
+and informal tone. Use Swiss German orthography.
+
+Start conversations with a greeting and a question regarding the topic of the
+student's current lecture.
+
+Do not let yourself be drawn into content explanations. Do not let yourself be
+drawn into discussion about topics outside the learning process. 
+
+
+Follow these principles to foster the learning process: 
+- Ask open-ended questions to stimulate thinking. 
+- Clarify key terms to ensure a shared understanding. 
+- Encourage the provision of examples and evidence. 
+- Challenge reasoning and encourage reevaluation of beliefs. 
+- Summarize discussions and derive conclusions. 
+- Reflect on the dialogue's effectiveness.
+
+Adapt your strategy based on the student's responses: 
+- For short "yes/no" answers, use targeted questions to deepen thinking. 
+- For longer responses, switch to exploratory mode to promote creative writing.
+
+Conversation plan: 
+- Identify the topic with the student. 
+- Support the student's self-assessment of their understanding. 
+- Prepare for the next session.
+
+Always encourage or correct based on the student's behavior (e.g., good
+preparation, active listening, avoiding distractions).
+
+Avoid long answers or content
+explanations, focusing instead on the learning process. Keep the conversation
+going with questions until the user says "exit."
+
+Here are some example questions to guide the conversation. Do not use these verbatim, but adapt them to the specific context of the conversation.
+
+## Checking understanding
+
+- How well did you understand the topic? 
+- Can you identify what was most difficult to understand? 
+- Why was it more difficult for you?
+- Was it easy to focus on the lecture or did you get distracted? 
+- What distracted you?
+- What are the learning goals for this class?
+- Can you summarize the learning goals?
+- What additional material would be helpful to study this topic? 
+- How can you make sure you get access to these materials?
+
+## Preparation for next session
+
+- How will you prepare for the next lecture? 
+- Will you change anything in the way you prepare for lectures?
+
+## Toolbox of actions to use in conversation
+Use the following to categorize the student's answers. You should encourage good
+behaviour and discourage bad behaviour.
+
+### Good student behavior:
+#### Preparation phase
+- read the notes from last week
+- read the texts that were assigned
+- read the slides before the lecture
+- familiarize with key concepts if not addressed in the readings
+- generate questions based on the pre-reading
+- prepare your devices (print slides or download them)
+- be in class early
+
+#### Lecture phase
+- listen actively, focus on the lecture, check your understanding of what is being said, think critically of what is being said
+- pay attention to where the teacher is pointing to
+- think about implications or applications
+- if you get confused, ask the teacher or peers (afterwards)
+- take notes, highlight important information
+- think about connections, integrate new knowledge in your existing knowledge
+
+#### Evaluation phase
+- ask yourself if you could answer the learning objectives
+- ask yourself if you understood the content, or if you need more information
+- discuss the topic with friends, try to summarize what you’ve learned
+
+### Bad student behavior:
+#### Preparation phase
+- don't know where to go
+- having downloaded the wrong slides
+- not reading the assigned texts
+
+
+#### Lecture phase
+- use social media or reading the news all the time
+- listen only when it interests you
+- playing games
+- focusing on tics of the lecturer
+- daydreaming
+- talking to neighbors about unrelated stuff
+- arriving late and/or leaving early
+
+#### Evaluation phase
+- no evaluation happens
+- lack of evaluative questions
+
+"""
 
 Responder = Entity | Type["Task"]
 
 USER_TIMEOUT = 60_000
 SYSTEM = "System 🖥️"
-LLM = "LLM 🧘🏼‍♂️"
+LLM = "Mentor 🧘🏼‍♂️"
 AGENT = "Agent <>"
-YOU = "User 👨🏼‍💻"
+YOU = "You"
 ERROR = "Error 🚫"
 
 class CustomChainlitTaskCallbacks(ChainlitTaskCallbacks):
@@ -194,114 +293,49 @@ class TaskWithCustomLogger(Task):
             self.tsv_logger.info(f"{mark_str}\t{task_name}\t{resp_str}\t{msg_str_tsv}")
 
 
-# def make_expert(name):
-#     expert_agent = lr.ChatAgent(config)
-#     expert_task = TaskWithCustomLogger(
-#         expert_agent,
-#         name = name,
-#         system_message=expert_message,
-#         # done_if_response=[Entity.LLM],
-#         # done_if_no_response=[Entity.LLM]
-#         interactive=False
-#     )
-#     return expert_task
+@cl.on_chat_start
+async def on_chat_start():
+    await add_instructions(
+        title="Single-Agent Reflection Chat",
+        content=dedent("""
+            **Mentor Agent** begleitet **Student** durch eine Reflexionsübung.
+            - Begrüssung durch den **Mentor**
+            """))
 
-@cl.on_settings_update
-async def on_settings_update(settings: cl.ChatSettings):
-    await update_llm(settings, "agent")
-    setup_agent_task()
-
-
-
-async def setup_agent_task():
-    # await setup_llm()
-    # llm_config = cl.user_session.get("llm_config")
     llm_config = AzureConfig(
         chat_model=OpenAIChatModel.GPT4_TURBO,
-        # chat_context_length=context_length,  # adjust based on model
         temperature=0.2,
-        # timeout=timeout,
     )
     config = lr.ChatAgentConfig(
         llm=llm_config)
 
-
-    assistant_agent = lr.ChatAgent(config)
-    assistant_agent.enable_message(lr.agent.tools.RecipientTool)
-    assistant_task = TaskWithCustomLogger(
-        assistant_agent,
-        name="Assistant",
-        system_message=assistant_message,
+    mentor_agent = lr.ChatAgent(config)
+    mentor_agent.enable_message(lr.agent.tools.RecipientTool)
+    mentor_task = TaskWithCustomLogger(
+        mentor_agent,
+        name="Mentor",
+        system_message=mentor_message,
         interactive=True,
         done_if_response=[Entity.LLM],
         done_if_no_response=[Entity.LLM]
     )
 
-    emotionExpert_agent = lr.ChatAgent(config)
-    emotionExpert_task = TaskWithCustomLogger(
-        emotionExpert_agent,
-        name = "EmotionExpert",
-        system_message=emotionExpert_message,
-        # done_if_response=[Entity.LLM],
-        # done_if_no_response=[Entity.LLM]
-        # interactive=False
-    )
+    mentor_task.set_color_log(False)
 
-    reflectionExpert_agent = lr.ChatAgent(config)
-    reflectionExpert_task = TaskWithCustomLogger(
-        reflectionExpert_agent,
-        name = "ReflectionExpert",
-        system_message=reflectionExpert_message,
-        interactive=False
-    )
-
-    socraticQuestioner_agent = lr.ChatAgent(config)
-    socraticQuestioner_task = TaskWithCustomLogger(
-        socraticQuestioner_agent,
-        name = "SocraticQuestioner",
-        system_message=socraticQuestioner_message,
-        interactive=False
-    )
-
-    assistant_task.add_sub_task([emotionExpert_task])
-    assistant_task.set_color_log(False)
-
-    cl.user_session.set("assistant_task", assistant_task)
-    cl.user_session.set("emotionExpert_task", emotionExpert_task)
-
-@cl.on_chat_start
-async def on_chat_start():
-    await add_instructions(
-        title="Two-Agent Reflection Chat",
-        content=dedent("""
-            **Teacher Agent** delegates to **Student Agent.**
-            - **Teacher** Agent asks a numerical question to **Student** Agent
-            - user (you) hits `c` to continue on to the **Student**
-            - **Student** Agent answers the question
-            - user (you) hits `c` to continue on to the **Teacher**
-            - **Teacher** Agent gives feedback        
-            - and so on.
-            
-            Note how all steps of the (student) sub-task are nested one level below 
-            the main (teacher) task.
-            """))
-
-    await setup_agent_task()
-
+    cl.user_session.set("mentor_task", mentor_task)
     
 @cl.on_message
 async def on_message(message: cl.Message):
-    assistant_task = cl.user_session.get("assistant_task")
-    emotionExpert_task = cl.user_session.get("emotionExpert_task")
-    reflectionExpert_task = cl.user_session.get("reflectionExpert_task")
-    socraticQuestioner_task = cl.user_session.get("socraticQuestioner_task")
+    mentor_task = cl.user_session.get("mentor_task")
 
     callback_config = lr.ChainlitCallbackConfig(user_has_agent_name=False)
     
-    tasks = [assistant_task, emotionExpert_task, reflectionExpert_task, socraticQuestioner_task]
+    tasks = [
+        mentor_task 
+        ]
+
     for task in tasks:
         CustomChainlitTaskCallbacks(task, message, config=callback_config)
 
-    # if assistant_task:
-    await assistant_task.run_async(message.content)
+    await mentor_task.run_async(message.content)
     

@@ -22,9 +22,6 @@ import langroid as lr
 import chainlit as cl
 from langroid.agent.callbacks.chainlit import (
     add_instructions,
-    # make_llm_settings_widgets,
-    update_llm,
-    setup_llm,
     ChainlitTaskCallbacks
 )
 
@@ -46,9 +43,9 @@ from langroid.utils.logging import RichFileLogger, setup_file_logger
 
 from reflectionprompts import (
     assistant_message, 
-    emotionExpert_message, 
-    reflectionExpert_message, 
-    socraticQuestioner_message
+    emotion_expert_message, 
+    reflection_expert_message, 
+    socratic_questioner_message
 )
 # from chainlitintegration import TaskWithCustomLogger, CustomChainlitTaskCallbacks
 
@@ -194,81 +191,6 @@ class TaskWithCustomLogger(Task):
             self.tsv_logger.info(f"{mark_str}\t{task_name}\t{resp_str}\t{msg_str_tsv}")
 
 
-# def make_expert(name):
-#     expert_agent = lr.ChatAgent(config)
-#     expert_task = TaskWithCustomLogger(
-#         expert_agent,
-#         name = name,
-#         system_message=expert_message,
-#         # done_if_response=[Entity.LLM],
-#         # done_if_no_response=[Entity.LLM]
-#         interactive=False
-#     )
-#     return expert_task
-
-@cl.on_settings_update
-async def on_settings_update(settings: cl.ChatSettings):
-    await update_llm(settings, "agent")
-    setup_agent_task()
-
-
-
-async def setup_agent_task():
-    # await setup_llm()
-    # llm_config = cl.user_session.get("llm_config")
-    llm_config = AzureConfig(
-        chat_model=OpenAIChatModel.GPT4_TURBO,
-        # chat_context_length=context_length,  # adjust based on model
-        temperature=0.2,
-        # timeout=timeout,
-    )
-    config = lr.ChatAgentConfig(
-        llm=llm_config)
-
-
-    assistant_agent = lr.ChatAgent(config)
-    assistant_agent.enable_message(lr.agent.tools.RecipientTool)
-    assistant_task = TaskWithCustomLogger(
-        assistant_agent,
-        name="Assistant",
-        system_message=assistant_message,
-        interactive=True,
-        done_if_response=[Entity.LLM],
-        done_if_no_response=[Entity.LLM]
-    )
-
-    emotionExpert_agent = lr.ChatAgent(config)
-    emotionExpert_task = TaskWithCustomLogger(
-        emotionExpert_agent,
-        name = "EmotionExpert",
-        system_message=emotionExpert_message,
-        # done_if_response=[Entity.LLM],
-        # done_if_no_response=[Entity.LLM]
-        # interactive=False
-    )
-
-    reflectionExpert_agent = lr.ChatAgent(config)
-    reflectionExpert_task = TaskWithCustomLogger(
-        reflectionExpert_agent,
-        name = "ReflectionExpert",
-        system_message=reflectionExpert_message,
-        interactive=False
-    )
-
-    socraticQuestioner_agent = lr.ChatAgent(config)
-    socraticQuestioner_task = TaskWithCustomLogger(
-        socraticQuestioner_agent,
-        name = "SocraticQuestioner",
-        system_message=socraticQuestioner_message,
-        interactive=False
-    )
-
-    assistant_task.add_sub_task([emotionExpert_task])
-    assistant_task.set_color_log(False)
-
-    cl.user_session.set("assistant_task", assistant_task)
-    cl.user_session.set("emotionExpert_task", emotionExpert_task)
-
 @cl.on_chat_start
 async def on_chat_start():
     await add_instructions(
@@ -286,22 +208,78 @@ async def on_chat_start():
             the main (teacher) task.
             """))
 
-    await setup_agent_task()
+    llm_config = AzureConfig(
+        chat_model=OpenAIChatModel.GPT4_TURBO,
+        temperature=0.2,
+    )
+    config = lr.ChatAgentConfig(
+        llm=llm_config)
 
+    assistant_agent = lr.ChatAgent(config)
+    assistant_agent.enable_message(lr.agent.tools.RecipientTool)
+    assistant_task = TaskWithCustomLogger(
+        assistant_agent,
+        name="Assistant",
+        system_message=assistant_message,
+        interactive=True,
+        done_if_response=[Entity.LLM],
+        done_if_no_response=[Entity.LLM]
+    )
+
+    emotion_expert_agent = lr.ChatAgent(config)
+    emotion_expert_agent.enable_message(lr.agent.tools.RecipientTool)
+    emotion_expert_task = TaskWithCustomLogger(
+        emotion_expert_agent,
+        name = "EmotionExpert",
+        system_message=emotion_expert_message,
+        interactive=True,
+        done_if_response=[Entity.LLM]
+    )
+
+    reflection_expert_agent = lr.ChatAgent(config)
+    reflection_expert_task = TaskWithCustomLogger(
+        reflection_expert_agent,
+        name = "ReflectionExpert",
+        system_message=reflection_expert_message,
+        interactive=True,
+        done_if_response=[Entity.LLM]
+    )
+
+    socratic_questioner_agent = lr.ChatAgent(config)
+    socratic_questioner_task = TaskWithCustomLogger(
+        socratic_questioner_agent,
+        name = "SocraticQuestioner",
+        system_message=socratic_questioner_message,
+        interactive=True,
+        done_if_response=[Entity.LLM]
+    )
+
+    assistant_task.add_sub_task([emotion_expert_task, reflection_expert_task, socratic_questioner_task])
+    assistant_task.set_color_log(False)
+
+    cl.user_session.set("assistant_task", assistant_task)
+    cl.user_session.set("emotion_expert_task", emotion_expert_task)
+    cl.user_session.set("reflection_expert_task", reflection_expert_task)
+    cl.user_session.set("socratic_questioner_task", socratic_questioner_task)
     
 @cl.on_message
 async def on_message(message: cl.Message):
     assistant_task = cl.user_session.get("assistant_task")
-    emotionExpert_task = cl.user_session.get("emotionExpert_task")
-    reflectionExpert_task = cl.user_session.get("reflectionExpert_task")
-    socraticQuestioner_task = cl.user_session.get("socraticQuestioner_task")
+    emotion_expert_task = cl.user_session.get("emotion_expert_task")
+    reflection_expert_task = cl.user_session.get("reflection_expert_task")
+    socratic_questioner_task = cl.user_session.get("socratic_questioner_task")
 
     callback_config = lr.ChainlitCallbackConfig(user_has_agent_name=False)
     
-    tasks = [assistant_task, emotionExpert_task, reflectionExpert_task, socraticQuestioner_task]
+    tasks = [
+        assistant_task, 
+        emotion_expert_task, 
+        reflection_expert_task, 
+        socratic_questioner_task
+        ]
+
     for task in tasks:
         CustomChainlitTaskCallbacks(task, message, config=callback_config)
 
-    # if assistant_task:
     await assistant_task.run_async(message.content)
     
