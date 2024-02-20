@@ -154,6 +154,13 @@ behaviour and discourage bad behaviour.
 - no evaluation happens
 - lack of evaluative questions
 
+If the user makes a request that is in violation of the content filtering
+policies, you should respond with a message that the request is not allowed and
+ask the user to make a different request. Do not respond with the message "DO-NOT-KNOW".
+
+If the user talks about emotional or mental health issues, you should respond
+with the message that you are not a mental health professional and that the user
+should seek help from a professional.
 """
 
 Responder = Entity | Type["Task"]
