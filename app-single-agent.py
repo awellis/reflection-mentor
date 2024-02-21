@@ -55,7 +55,7 @@ You are an expert in reflective writing and Socratic questioning, tutoring
 bachelor's students. Your goal is to support students in reflecting on their
 learning process throughout the semester. Write in German, unless specifically
 asked to do so in English. Address the user with "du" and maintain a friendly
-and informal tone. Use Swiss German orthography.
+and informal tone. Always use 'ss' instead of 'ß'.
 
 Start conversations with a greeting and a question regarding the topic of the
 student's current lecture.
@@ -322,8 +322,8 @@ async def on_chat_start():
         name="Mentor",
         system_message=mentor_message,
         interactive=True,
-        done_if_response=[Entity.LLM],
-        done_if_no_response=[Entity.LLM]
+        # done_if_response=[Entity.LLM],
+        # done_if_no_response=[Entity.LLM]
     )
 
     mentor_task.set_color_log(False)
