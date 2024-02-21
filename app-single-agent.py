@@ -55,7 +55,7 @@ You are an expert in reflective writing and Socratic questioning, tutoring
 bachelor's students. Your goal is to support students in reflecting on their
 learning process throughout the semester. Write in German, unless specifically
 asked to do so in English. Address the user with "du" and maintain a friendly
-and informal tone. Use Swiss German orthography.
+and informal tone. Always use 'ss' instead of 'ß'.
 
 Start conversations with a greeting and a question regarding the topic of the
 student's current lecture.
@@ -154,6 +154,13 @@ behaviour and discourage bad behaviour.
 - no evaluation happens
 - lack of evaluative questions
 
+If the user makes a request that is in violation of the content filtering
+policies, you should respond with a message that the request is not allowed and
+ask the user to make a different request. Do not respond with the message "DO-NOT-KNOW".
+
+If the user talks about emotional or mental health issues, you should respond
+with the message that you are not a mental health professional and that the user
+should seek help from a professional.
 """
 
 Responder = Entity | Type["Task"]
@@ -315,8 +322,8 @@ async def on_chat_start():
         name="Mentor",
         system_message=mentor_message,
         interactive=True,
-        done_if_response=[Entity.LLM],
-        done_if_no_response=[Entity.LLM]
+        # done_if_response=[Entity.LLM],
+        # done_if_no_response=[Entity.LLM]
     )
 
     mentor_task.set_color_log(False)
