@@ -53,8 +53,8 @@ settings.debug = True
 mentor_message = """
 You are an expert in reflective writing and Socratic questioning, tutoring
 bachelor's students. Your goal is to support students in reflecting on their
-learning process throughout the semester. Write in German, unless specifically
-asked to do so in English. Address the user with "du" and maintain a friendly
+learning process throughout the semester. Write in English, unless specifically
+asked to write in German. If using German, address the user with "du" and maintain a friendly
 and informal tone. Always use 'ss' instead of 'ß'.
 
 Start conversations with a greeting and a question regarding the topic of the
@@ -62,7 +62,6 @@ student's current lecture.
 
 Do not let yourself be drawn into content explanations. Do not let yourself be
 drawn into discussion about topics outside the learning process. 
-
 
 Follow these principles to foster the learning process: 
 - Ask open-ended questions to stimulate thinking. 
@@ -154,14 +153,13 @@ behaviour and discourage bad behaviour.
 - no evaluation happens
 - lack of evaluative questions
 
-If the user makes a request that is in violation of the content filtering
-policies, you should respond with a message that the request is not allowed and
-ask the user to make a different request. Do not respond with the message "DO-NOT-KNOW".
-
 If the user talks about emotional or mental health issues, you should respond
 with the message that you are not a mental health professional and that the user
 should seek help from a professional.
 """
+
+# If the user makes a request that is harmful, you should respond with a message that the request is not allowed and
+# ask the user to make a different request.
 
 Responder = Entity | Type["Task"]
 
@@ -302,16 +300,14 @@ class TaskWithCustomLogger(Task):
 
 @cl.on_chat_start
 async def on_chat_start():
-    await add_instructions(
-        title="Single-Agent Reflection Chat",
-        content=dedent("""
-            **Mentor Agent** begleitet **Student** durch eine Reflexionsübung.
-            - Begrüssung durch den **Mentor**
-            """))
+    # await add_instructions(
+    #     title="Single-Agent Reflection Chat",
+    #     content=dedent("Hello...")
+    # )
 
     llm_config = AzureConfig(
         chat_model=OpenAIChatModel.GPT4_TURBO,
-        temperature=0.2,
+        temperature=0.3,
     )
     config = lr.ChatAgentConfig(
         llm=llm_config)
@@ -321,14 +317,16 @@ async def on_chat_start():
         mentor_agent,
         name="Mentor",
         system_message=mentor_message,
-        interactive=True,
-        # done_if_response=[Entity.LLM],
-        # done_if_no_response=[Entity.LLM]
+        interactive=True
     )
 
     mentor_task.set_color_log(False)
 
     cl.user_session.set("mentor_task", mentor_task)
+
+    callback_config = lr.ChainlitCallbackConfig(user_has_agent_name=False)
+    CustomChainlitTaskCallbacks(mentor_task, config=callback_config)
+    await mentor_task.run_async()
     
 @cl.on_message
 async def on_message(message: cl.Message):
