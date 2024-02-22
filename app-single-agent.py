@@ -153,13 +153,13 @@ behaviour and discourage bad behaviour.
 - no evaluation happens
 - lack of evaluative questions
 
-If the user makes a request that is harmful, you should respond with a message that the request is not allowed and
-ask the user to make a different request.
-
 If the user talks about emotional or mental health issues, you should respond
 with the message that you are not a mental health professional and that the user
 should seek help from a professional.
 """
+
+# If the user makes a request that is harmful, you should respond with a message that the request is not allowed and
+# ask the user to make a different request.
 
 Responder = Entity | Type["Task"]
 
@@ -323,8 +323,10 @@ async def on_chat_start():
     mentor_task.set_color_log(False)
 
     cl.user_session.set("mentor_task", mentor_task)
-    CustomChainlitTaskCallbacks(mentor_task)
-    await mentor_task.step_async()
+
+    callback_config = lr.ChainlitCallbackConfig(user_has_agent_name=False)
+    CustomChainlitTaskCallbacks(mentor_task, config=callback_config)
+    await mentor_task.run_async()
     
 @cl.on_message
 async def on_message(message: cl.Message):
