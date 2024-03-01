@@ -118,3 +118,8 @@ async def on_message(message: cl.Message):
         )
     logger.info(mentor_log_message.json()) # pyright: ignore
 
+
+@cl.on_chat_end
+def end():
+    print(f"Goodbye {SESSION_ID}")
+    logger.debug(f"Chat ended by user {SESSION_ID}")
