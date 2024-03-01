@@ -10,10 +10,12 @@ class LogMessage(BaseModel):
     message: str
 
 class StudentLogMessage(LogMessage):
-    sender = "student"
+    sender: str = "student"
+    message: str
 
 class MentorLogMessage(LogMessage):
-    sender = "mentor"
+    sender: str = "mentor"
+    message: str
 
 
 # from functools import partial, partialmethod
