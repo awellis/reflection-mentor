@@ -17,6 +17,8 @@ from messagelogger import (
     MentorLogMessage
 )
 
+from datetime import datetime
+
 SESSION_ID = "FJISMZ3242"
 
 def setup_runnable():
@@ -53,7 +55,11 @@ def setup_runnable():
 
 @cl.on_chat_start
 async def on_chat_start():
-    logger = setup_file_logger(SESSION_ID, f"logs/{SESSION_ID}.log", log_format=True)
+    timestamp = datetime.now().isoformat().replace(":", "-")    #strftime("%Y%m%d%H%M%S")
+    logger = setup_file_logger(name=SESSION_ID, 
+                               filename=f"logs/{timestamp}-{SESSION_ID}.log", 
+                               log_format=True
+                               )
     logger.debug(f"Chat started by user {SESSION_ID}")
 
     cl.user_session.set("memory", ConversationBufferMemory(return_messages=True))
@@ -97,12 +103,10 @@ async def on_message(message: cl.Message):
     await res.send()
 
     memory.chat_memory.add_user_message(message.content) # pyright: ignore
-
     memory.chat_memory.add_ai_message(res.content) # pyright: ignore
 
     # print(memory.chat_memory)  # pyright: ignore
 
- 
     student_log_message = StudentLogMessage( # pyright: ignore
         message=message.content # pyright: ignore
     )
