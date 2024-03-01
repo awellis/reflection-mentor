@@ -118,15 +118,11 @@ async def on_message(message: cl.Message):
     #TODO: use pydantic subclasses
     
     student_log_message = StudentLogMessage(
-        # sender="student",
         message=message.content,
-        # timestamp=datetime.now().isoformat()
     )
     logger.info(student_log_message.json())
 
     mentor_log_message = MentorLogMessage(
-        # sender="mentor",
         message=res.content,  # Assuming res.content is a variable, replace it accordingly
-        # timestamp=datetime.now().isoformat()
         )
     logger.info(mentor_log_message.json())
