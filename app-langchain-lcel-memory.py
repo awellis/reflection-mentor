@@ -10,9 +10,17 @@ from langchain.memory import ConversationBufferMemory
 from chainlit.types import ThreadDict
 import chainlit as cl
 
-import messagelogger as ml
+from messagelogger import (
+    setup_file_logger,
+    LogMessage, 
+    StudentLogMessage,
+    MentorLogMessage
+)
 
-SESSION_ID = "FJISMZ-2342"
+import json
+# from datetime import datetime
+
+SESSION_ID = "FJISMZ3242"
 
 
 def setup_runnable():
@@ -25,7 +33,7 @@ def setup_runnable():
                             )
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", "You are a helpful assistant."),
+            ("system", "You are a haiku writer. Ask me what to write about."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{question}"),
         ]
@@ -51,7 +59,7 @@ def setup_runnable():
 async def on_chat_start():
     # logging.basicConfig(filename='logs/log_file.log', level=logging.INFO,
     # format='%(asctime)s - %(message)s')
-    logger = ml.setup_file_logger(SESSION_ID, f"logs/{SESSION_ID}.log", log_format=True)
+    logger = setup_file_logger(SESSION_ID, f"logs/{SESSION_ID}.log", log_format=True)
 
     cl.user_session.set("memory", ConversationBufferMemory(return_messages=True))
     cl.user_session.set("logger", logger)
@@ -85,6 +93,8 @@ async def on_message(message: cl.Message):
     runnable = cl.user_session.get("runnable")
     logger = cl.user_session.get("logger")
 
+    # logger.student(message.content)
+
     res = cl.Message(content="")
 
     async for chunk in runnable.astream(
@@ -94,11 +104,29 @@ async def on_message(message: cl.Message):
         await res.stream_token(chunk)
 
     await res.send()
+    # logger.mentor(res.content)
 
     memory.chat_memory.add_user_message(message.content)
     memory.chat_memory.add_ai_message(res.content)
-    print(memory.chat_memory)
+    # print(memory.chat_memory)
     # log_str = memory.to_json()
-    logger.mentor(message.content)
-    logger.student(res.content)
+    # logger.student(message.content)
+    # logger.mentor(res.content)
     
+    # logger.debug(log_str)
+
+    #TODO: use pydantic subclasses
+    
+    student_log_message = StudentLogMessage(
+        # sender="student",
+        message=message.content,
+        # timestamp=datetime.now().isoformat()
+    )
+    logger.info(student_log_message.json())
+
+    mentor_log_message = MentorLogMessage(
+        # sender="mentor",
+        message=res.content,  # Assuming res.content is a variable, replace it accordingly
+        # timestamp=datetime.now().isoformat()
+        )
+    logger.info(mentor_log_message.json())
