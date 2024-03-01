@@ -23,7 +23,6 @@ class MentorLogMessage(LogMessage):
 # logging.Logger.mentor = partialmethod(logging.Logger.log, logging.MENTOR)
 # logging.mentor = partial(logging.log, logging.MENTOR)
 
-
 # logging.STUDENT = 5
 # logging.addLevelName(logging.STUDENT, 'STUDENT')
 # logging.Logger.student = partialmethod(logging.Logger.log, logging.STUDENT)
