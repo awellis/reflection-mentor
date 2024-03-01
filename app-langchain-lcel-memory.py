@@ -17,11 +17,7 @@ from messagelogger import (
     MentorLogMessage
 )
 
-import json
-# from datetime import datetime
-
 SESSION_ID = "FJISMZ3242"
-
 
 def setup_runnable():
     memory = cl.user_session.get("memory")
@@ -57,17 +53,14 @@ def setup_runnable():
 
 @cl.on_chat_start
 async def on_chat_start():
-    # logging.basicConfig(filename='logs/log_file.log', level=logging.INFO,
-    # format='%(asctime)s - %(message)s')
     logger = setup_file_logger(SESSION_ID, f"logs/{SESSION_ID}.log", log_format=True)
+    logger.debug(f"Chat started by user {SESSION_ID}")
 
     cl.user_session.set("memory", ConversationBufferMemory(return_messages=True))
     cl.user_session.set("logger", logger)
 
     setup_runnable()
     
-    # memory = cl.user_session.get("memory")  # type: ConversationBufferMemory
-    # print(memory.chat_memory)
     msg = cl.Message(content=f"Hi, how can I help you?", disable_feedback=True)
     await msg.send()
 
@@ -93,36 +86,31 @@ async def on_message(message: cl.Message):
     runnable = cl.user_session.get("runnable")
     logger = cl.user_session.get("logger")
 
-    # logger.student(message.content)
-
     res = cl.Message(content="")
 
-    async for chunk in runnable.astream(
+    async for chunk in runnable.astream( # pyright: ignore
         {"question": message.content},
         config=RunnableConfig(callbacks=[cl.LangchainCallbackHandler()]),
     ):
         await res.stream_token(chunk)
 
     await res.send()
-    # logger.mentor(res.content)
 
-    memory.chat_memory.add_user_message(message.content)
-    memory.chat_memory.add_ai_message(res.content)
-    # print(memory.chat_memory)
-    # log_str = memory.to_json()
-    # logger.student(message.content)
-    # logger.mentor(res.content)
-    
-    # logger.debug(log_str)
+    memory.chat_memory.add_user_message(message.content) # pyright: ignore
 
-    #TODO: use pydantic subclasses
-    
-    student_log_message = StudentLogMessage(
-        message=message.content,
+    memory.chat_memory.add_ai_message(res.content) # pyright: ignore
+
+    # print(memory.chat_memory)  # pyright: ignore
+
+ 
+    student_log_message = StudentLogMessage( # pyright: ignore
+        message=message.content # pyright: ignore
     )
-    logger.info(student_log_message.json())
+    logger.info(student_log_message.json()) # pyright: ignore
 
-    mentor_log_message = MentorLogMessage(
-        message=res.content,  # Assuming res.content is a variable, replace it accordingly
+
+    mentor_log_message = MentorLogMessage( # pyright: ignore
+        message=res.content
         )
-    logger.info(mentor_log_message.json())
+    logger.info(mentor_log_message.json()) # pyright: ignore
+
