@@ -41,7 +41,7 @@ name = "Reflection Mentor"
 show_readme_as_default = false
 
 # Description of the app and chatbot. This is used for HTML tags.
-# description = ""
+description = "A chatbot to help you reflect on your learning experiences."
 
 # Large size content are by default collapsed for a cleaner ui
 default_collapse_content = true
@@ -50,7 +50,7 @@ default_collapse_content = true
 default_expand_messages = false
 
 # Hide the chain of thought details from the user in the UI.
-hide_cot = true
+hide_cot = false
 
 # Link to your github repo. This will add a github button in the UI's header.
 github = "https://github.com/awellis/reflection-mentor"
