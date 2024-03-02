@@ -22,12 +22,13 @@ from reflectionprompts import (
 )
 from textwrap import dedent
 from datetime import datetime
+import random
 
 SESSION_ID = "FJISMZ3242"
 
 def setup_runnable():
     memory = cl.user_session.get("memory")
-    model = AzureChatOpenAI(temperature = 0.2,
+    model = AzureChatOpenAI(temperature = 0.8,
                             streaming=True,
                             # azure_openai_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
                             openai_api_version="2024-02-15-preview",
@@ -70,14 +71,67 @@ async def on_chat_start():
     cl.user_session.set("logger", logger)
 
     setup_runnable()
+
+    #TODO: We can either add a message from a list of pre-defined messages or we
+    #can use a generated message. This works, but results in
+    #`load_memory_variables` and `AzureChatOpenAI` being shown in the UI.
     
-    initial_message = dedent("""
-    Hallo, ich hoffe, es geht dir gut! Ich bin der Chatbot, der dir beim
-    Reflektieren hilft. Was war das Thema deiner letzten Veranstaltung, über das
-    du gerne sprechen möchtest?
-    """)
+    # initial_message = dedent("""
+    # Hallo, ich hoffe, es geht dir gut! Ich bin der Chatbot, der dir beim
+    # Reflektieren hilft. Was war das Thema deiner letzten Veranstaltung, über das
+    # du gerne sprechen möchtest?
+    # """)
+
+    initial_messages = ["""Hallo, ich hoffe, es geht dir gut! Ich bin der
+                        Chatbot, der dir beim Reflektieren hilft. Was war das
+                        Thema deiner letzten Veranstaltung, über das du gerne
+                        sprechen möchtest?""",
+                        """Hallo, ich wünsche dir einen schönen Tag! Ich bin der
+                        Chatbot, der dich beim Nachdenken unterstützt. Welches
+                        war das Thema deiner letzten Veranstaltung, über das du
+                        gerne diskutieren möchtest?""",
+                        """Guten Tag, ich hoffe, du fühlst dich wohl! Ich bin
+                        der Chatbot, der dir bei der Reflexion zur Seite steht.
+                        Über welches Thema deiner letzten Veranstaltung möchtest
+                        du sprechen?""",
+                        """Hallo, ich hoffe, alles ist bei dir in Ordnung! Ich
+                        bin der Chatbot, der dir beim Überlegen hilft. Welches
+                        Thema deiner letzten Veranstaltung möchtest du gerne
+                        erörtern?""",
+                        """Hallo, ich hoffe, du bist wohlauf! Ich bin der
+                        Chatbot, der dir bei deinen Überlegungen assistiert. Was
+                        war das Thema deiner letzten Veranstaltung, über das du
+                        gerne reden möchtest?""",
+                        """Guten Tag, ich hoffe, es geht dir gut! Ich
+                        bin der Chatbot, der dir bei der Reflexion behilflich
+                        ist. Über welches Thema deiner letzten Veranstaltung
+                        würdest du gerne sprechen?"""
+    ]
+    initial_message = dedent(' '.join(random.choice(initial_messages).split()))
     msg = cl.Message(content=initial_message, disable_feedback=True)
     await msg.send()
+
+    # runnable = cl.user_session.get("runnable")
+    memory = cl.user_session.get("memory")
+    logger = cl.user_session.get("logger")
+
+    # inputs = {"question": "Start the conversation. Tell the user about yourself, ask them about their day and the topic of their current lecture."}
+    # # runnable.invoke(inputs)
+
+    # res = cl.Message(content="")
+    # async for chunk in runnable.astream( # pyright: ignore
+    #     inputs,
+    #     config=RunnableConfig(callbacks=[cl.LangchainCallbackHandler(stream_final_answer=True)]),
+    # ):
+    #     await res.stream_token(chunk)
+
+    # await res.send()
+    memory.chat_memory.add_ai_message(initial_message) # pyright: ignore
+    mentor_log_message = MentorLogMessage( # pyright: ignore
+        message=initial_message
+        )
+    logger.info(mentor_log_message.json()) 
+
 
 
 # @cl.on_chat_resume
