@@ -17,6 +17,10 @@ from messagelogger import (
     MentorLogMessage
 )
 
+from reflectionprompts import (
+    mentor_message
+)
+from textwrap import dedent
 from datetime import datetime
 
 SESSION_ID = "FJISMZ3242"
@@ -31,7 +35,7 @@ def setup_runnable():
                             )
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", "You are a haiku writer. Ask me what to write about."),
+            ("system", mentor_message),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{question}"),
         ]
@@ -48,9 +52,9 @@ def setup_runnable():
     cl.user_session.set("runnable", runnable)
 
 
-# @cl.password_auth_callback
-# def auth():
-#     return cl.User(identifier="test")
+@cl.password_auth_callback
+def auth():
+    return cl.User(identifier="test")
 
 
 @cl.on_chat_start
@@ -67,7 +71,12 @@ async def on_chat_start():
 
     setup_runnable()
     
-    msg = cl.Message(content=f"Hi, how can I help you?", disable_feedback=True)
+    initial_message = dedent("""
+    Hallo, ich hoffe, es geht dir gut! Ich bin der Chatbot, der dir beim
+    Reflektieren hilft. Was war das Thema deiner letzten Veranstaltung, über das
+    du gerne sprechen möchtest?
+    """)
+    msg = cl.Message(content=initial_message, disable_feedback=True)
     await msg.send()
 
 
