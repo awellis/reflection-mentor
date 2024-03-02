@@ -1,14 +1,18 @@
-# Welcome to Chainlit! 🚀🤖
+Willkommen beim Mentor-Chatbot! Dieser interaktive Assistent wurde entwickelt, um Studierenden zu helfen, ihre Lernerfahrung zu reflektieren. Unser Chatbot führt dich durch einen halbstrukturierten Interviewleitfaden, um deine metakognitiven Fähigkeiten zu fördern.
 
-Hi there, Developer! 👋 We're excited to have you on board. Chainlit is a powerful tool designed to help you prototype, debug and share applications built on top of LLMs.
 
-## Useful Links 🔗
+1) **Lernen**: Teile dem Chatbot mit, was du in deiner letzten Veranstaltung gelernt hast. Beschreibe die wichtigsten Konzepte oder Herausforderungen.
 
-- **Documentation:** Get started with our comprehensive [Chainlit Documentation](https://docs.chainlit.io) 📚
-- **Discord Community:** Join our friendly [Chainlit Discord](https://discord.gg/k73SQ3FyUh) to ask questions, share your projects, and connect with other developers! 💬
+2) **Verständnis**: Bewerte dein Verständnis des Gelernten. Wie gut hast du die Informationen aufgenommen? Gibt es Bereiche, die du vertiefen möchtest?
 
-We can't wait to see what you create with Chainlit! Happy coding! 💻😊
+3) **Vorbereitung**: Bespreche, wie du dich auf die nächste Lektion vorbereiten wirst. Welche Strategien planst du, um das Beste aus der kommenden Unterrichtseinheit herauszuholen?
 
-## Welcome screen
 
-To modify the welcome screen, edit the `chainlit.md` file at the root of your project. If you do not want a welcome screen, just leave this file empty.
+Die Konversation kann je nach deinen Antworten unterschiedlich verlaufen, und du kannst sie jederzeit mit `exit` beenden. Unser Ziel ist es, deine metakognitiven Fähigkeiten zu stärken und dir beim effektiven Lernen zu helfen.
+
+
+Wichtiger Hinweis: Deine mentale Gesundheit ist uns wichtig. Falls du dich unwohl fühlst, mentale Probleme hast oder dich vom Stress überwältigt fühlst, empfehlen wir, die Webseite der [Beratungsstelle der Berner Fachhochschulen](https://www.bfh.ch/de/ueber-die-bfh/service-beratung/beratungsstellen/) für Unterstützung aufzurufen. 
+
+Für Studierende der EPFL eignet sich folgende Webseite: [Trust Point](https://trust-point.epfl.ch/fr/). 
+
+Wir sind hier, um deine Lernerfahrung zu verbessern. Starte jetzt deine Reflexion und entdecke neue Wege des effektiven Lernens! 🚀
