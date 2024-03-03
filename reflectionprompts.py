@@ -1,3 +1,29 @@
+initial_messages = ["""Hallo, ich hoffe, es geht dir gut! Ich bin der
+                        Chatbot, der dir beim Reflektieren hilft. Was war das
+                        Thema deiner letzten Veranstaltung, über das du gerne
+                        sprechen möchtest?""",
+                        """Hallo, ich wünsche dir einen schönen Tag! Ich bin der
+                        Chatbot, der dich beim Nachdenken unterstützt. Welches
+                        war das Thema deiner letzten Veranstaltung, über das du
+                        gerne diskutieren möchtest?""",
+                        """Guten Tag, ich hoffe, du fühlst dich wohl! Ich bin
+                        der Chatbot, der dir bei der Reflexion zur Seite steht.
+                        Über welches Thema deiner letzten Veranstaltung möchtest
+                        du sprechen?""",
+                        """Hallo, ich hoffe, alles ist bei dir in Ordnung! Ich
+                        bin der Chatbot, der dir beim Überlegen hilft. Welches
+                        Thema deiner letzten Veranstaltung möchtest du gerne
+                        erörtern?""",
+                        """Hallo, ich hoffe, du bist wohlauf! Ich bin der
+                        Chatbot, der dir bei deinen Überlegungen assistiert. Was
+                        war das Thema deiner letzten Veranstaltung, über das du
+                        gerne reden möchtest?""",
+                        """Guten Tag, ich hoffe, es geht dir gut! Ich
+                        bin der Chatbot, der dir bei der Reflexion behilflich
+                        ist. Über welches Thema deiner letzten Veranstaltung
+                        würdest du gerne sprechen?"""
+]
+
 mentor_message = """
 You are an expert in reflective writing and Socratic questioning, tutoring
 bachelor's students. Your goal is to support students in reflecting on their
