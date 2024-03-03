@@ -18,8 +18,10 @@ from messagelogger import (
 )
 
 from reflectionprompts import (
+    initial_messages,
     mentor_message
 )
+
 from textwrap import dedent
 from datetime import datetime
 import random
@@ -82,31 +84,6 @@ async def on_chat_start():
     # du gerne sprechen möchtest?
     # """)
 
-    initial_messages = ["""Hallo, ich hoffe, es geht dir gut! Ich bin der
-                        Chatbot, der dir beim Reflektieren hilft. Was war das
-                        Thema deiner letzten Veranstaltung, über das du gerne
-                        sprechen möchtest?""",
-                        """Hallo, ich wünsche dir einen schönen Tag! Ich bin der
-                        Chatbot, der dich beim Nachdenken unterstützt. Welches
-                        war das Thema deiner letzten Veranstaltung, über das du
-                        gerne diskutieren möchtest?""",
-                        """Guten Tag, ich hoffe, du fühlst dich wohl! Ich bin
-                        der Chatbot, der dir bei der Reflexion zur Seite steht.
-                        Über welches Thema deiner letzten Veranstaltung möchtest
-                        du sprechen?""",
-                        """Hallo, ich hoffe, alles ist bei dir in Ordnung! Ich
-                        bin der Chatbot, der dir beim Überlegen hilft. Welches
-                        Thema deiner letzten Veranstaltung möchtest du gerne
-                        erörtern?""",
-                        """Hallo, ich hoffe, du bist wohlauf! Ich bin der
-                        Chatbot, der dir bei deinen Überlegungen assistiert. Was
-                        war das Thema deiner letzten Veranstaltung, über das du
-                        gerne reden möchtest?""",
-                        """Guten Tag, ich hoffe, es geht dir gut! Ich
-                        bin der Chatbot, der dir bei der Reflexion behilflich
-                        ist. Über welches Thema deiner letzten Veranstaltung
-                        würdest du gerne sprechen?"""
-    ]
     initial_message = dedent(' '.join(random.choice(initial_messages).split()))
     msg = cl.Message(content=initial_message, disable_feedback=True)
     await msg.send()
