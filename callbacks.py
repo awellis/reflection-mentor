@@ -41,7 +41,7 @@ USER_TIMEOUT = 60_000
 SYSTEM = "System 🖥️"
 LLM = "Mentor 🧘🏼‍♂️"
 AGENT = "Agent <>"
-YOU = "You"
+YOU = "Du"
 ERROR = "Error 🚫"
 
 Responder = Entity | Type["Task"]
