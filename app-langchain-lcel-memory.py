@@ -78,12 +78,6 @@ async def on_chat_start():
     #can use a generated message. This works, but results in
     #`load_memory_variables` and `AzureChatOpenAI` being shown in the UI.
     
-    # initial_message = dedent("""
-    # Hallo, ich hoffe, es geht dir gut! Ich bin der Chatbot, der dir beim
-    # Reflektieren hilft. Was war das Thema deiner letzten Veranstaltung, über das
-    # du gerne sprechen möchtest?
-    # """)
-
     initial_message = dedent(' '.join(random.choice(initial_messages).split()))
     msg = cl.Message(content=initial_message, disable_feedback=True)
     await msg.send()
