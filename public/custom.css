@@ -1,7 +1,9 @@
 a[href*='https://github.com/Chainlit/chainlit'] {
     visibility: hidden;
 }
-
 .MuiStack-root.watermark {
     display: none;
+}
+#root header.MuiAppBar-root {
+    display: none !important;
 }
