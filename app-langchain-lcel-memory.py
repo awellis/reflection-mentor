@@ -28,6 +28,12 @@ import random
 
 SESSION_ID = "FJISMZ3242"
 
+role = 'student'
+provider = 'unknown'
+platform_id = 'Moodle'
+courseid = 'Stat-101'
+
+
 def setup_runnable():
     memory = cl.user_session.get("memory")
     model = AzureChatOpenAI(temperature = 0.8,
@@ -59,15 +65,33 @@ def setup_runnable():
 def auth():
     return cl.User(identifier="test")
 
+@cl.set_chat_profiles
+async def chat_profile(current_user: cl.User):
+    # print(f"User: {current_user}")
+    user = current_user
+    if user:
+        # Access metadata
+        role = user.metadata.get('role')
+        provider = user.metadata.get('provider')
+        platform_id = user.metadata.get('platform-id')
+        courseid = user.metadata.get('courseid')
+        print(f"User: {user} \n Role: {role} \n Provider: {provider} \n Platform ID: {platform_id} \n Course ID: {courseid}")
 
 @cl.on_chat_start
 async def on_chat_start():
+    user = cl.user_session.get("user")
+    # chat_profile = cl.user_session.get("chat_profile")
+    # await cl.Message(
+    #     content=f"starting chat with {user.identifier} using the {chat_profile} chat profile"
+    # ).send()
+
     timestamp = datetime.now().isoformat().replace(":", "-")    #strftime("%Y%m%d%H%M%S")
-    logger = setup_file_logger(name=SESSION_ID, 
-                               filename=f"logs/{timestamp}-{SESSION_ID}.log", 
+    logger = setup_file_logger(name=user.identifier, 
+                               filename=f"logs/{timestamp}-{user.identifier}.log", 
                                log_format=True
                                )
-    logger.debug(f"Chat started by user {SESSION_ID}")
+    logger.debug(f"Chat started by user {user.identifier}")
+    # logger.debug(f"Chat started by user {SESSION_ID}")
 
     cl.user_session.set("memory", ConversationBufferMemory(return_messages=True))
     cl.user_session.set("logger", logger)
@@ -158,4 +182,4 @@ def end():
     logger = cl.user_session.get("logger")
 
     print(f"Goodbye {SESSION_ID}")
-    logger.debug(f"Chat ended by user {SESSION_ID}")
+    logger.debug(f"Chat ended by user {user.identifier}")
